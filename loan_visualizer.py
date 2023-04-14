@@ -7,36 +7,22 @@ def currency_round(input):
 @dataclass
 class Loan():
     balance: float = 2083190 / 85
-    yearly_interest_rate: float = 13.5
-    monthly_interest_points: float = yearly_interest_rate / 1200
     minimum_emi: float = 42780 / 85
+
+    def __init__(self, rate):
+        self.update_rate(rate)
 
     def update_rate(self, rate):
         self.yearly_interest_rate = rate
-        self.monthly_interest_points = rate / 1200      
-
-@dataclass
-class Budget():
-    rent: float = 700
-    insurance: float = 150
-    travel: float = 350
-    needs: float = 300
-    wants: float = 300
-
-    def get_total_budget(self):
-        total = 0
-        for field in self.__dataclass_fields__:
-            total += getattr(self, field)
-        return total
+        self.monthly_interest_points = rate / 1200
 
 class Income():
     total_income: float = 3500
-    budget = Budget()
     total_expenses: float = 2000
     total_savings: float = total_income - total_expenses
 
-class LoanPayment():
-    loan = Loan()
+class Strategy():
+    loan = Loan(13.5)
     income = Income()
 
     def establish_strategies(self, emi_candidates):
@@ -64,7 +50,7 @@ class LoanPayment():
 
 if __name__ == '__main__':
     emi_eur = [600, 800, 1000, 1200, 1400]
-    lp = LoanPayment()
+    lp = Strategy()
     lp.establish_strategies(emi_eur)
     lp.evaluate_strategies()
     app = Dash(__name__)
@@ -74,14 +60,12 @@ if __name__ == '__main__':
             html.H1(children="Loan Visualizer"),
             dcc.Graph(
                 figure={
-                    "data": [
-                        {
+                    "data": [{
                             "x": lp.emi_candidates,
                             "y": lp.interest_paid,
                             "type": "bar",
                             "name": "Interest Paid"
-                        },
-                        {
+                        },{
                             "x": lp.emi_candidates,
                             "y": lp.yearly_savings,
                             "type": "bar",
